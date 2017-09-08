@@ -5,6 +5,8 @@ package com.tupelo.wellness.network;
  */
 
 
+import android.util.Log;
+
 import com.tupelo.wellness.bean.CaloriesBean;
 import com.tupelo.wellness.bean.DistanceBean;
 import com.tupelo.wellness.bean.FloorBean;
@@ -55,6 +57,8 @@ public class NetworkCall {
         params.add(new BasicNameValuePair("date", date));
 
         String response = new NetworkConnection().networkHit(params, Constants.BASE_URL);
+        Log.e("Presonal Dashboard",response);
+
         return response;
 
     }
@@ -173,10 +177,11 @@ public class NetworkCall {
         String dataType = "101";
 
         StringBuilder stringBuilder = new StringBuilder("{\"userid\":\"" + userid + "\",\"dataType\":\"" + dataType + "\",\"imei\":\"" + imei + "\",\"serial\":\"" + serial + "\",\"apitoken\":\"" + apitoken + "\",\"apitype\":\"" + apitype + "\",\"data\":[");
-        for (int i = 0; i < distanceArray.size(); i++) {
+        for (int i = 0; i < stepsArray.size(); i++) {
         //    if (stepsArray.size() < i && distanceArray.size() < i && caloriesArray.size() < i) {
                 String datetime = stepsArray.get(i).getDate() + " 00:00:00";
                 String steps = stepsArray.get(i).getSteps();
+                //if(distanceArray.get(i).getDistance().isEmpty())
                 String distance = distanceArray.get(i).getDistance();
                 String calories = caloriesArray.get(i).getSteps();
                 String data;

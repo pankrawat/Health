@@ -708,6 +708,19 @@ public class TabActivity extends AppCompatActivity implements LBFragment.OnFragm
                 Log.e(TAG, "Inside Home");
                 break;
             }
+            case "mygoals": {
+                checkmenu();
+                info.setVisibility(View.GONE);
+                Log.e(TAG, "Inside Profile");
+                drawerFragmentLayout.removeAllViews();
+                fourTabLayout.setVisibility(View.GONE);
+                drawerFragmentLayout.setVisibility(View.VISIBLE);
+                FragmentManager fm = getSupportFragmentManager();
+                FragmentTransaction ft = fm.beginTransaction();
+                ft.add(R.id.changeFragment, new MyGoals());
+                ft.commit();
+                break;
+            }
 
         }
 

@@ -994,19 +994,7 @@ public class Dashboard extends Fragment implements SwipeRefreshLayout.OnRefreshL
             //String serial = "7065646f6d657465720d0a", apitoken = "", apitype = "1003";
             String serial = "676f6f676c65666974", apitoken = "", apitype = "1003";
 
-//            Float total_calories = 0.00f;
-//            PendingResult<DailyTotalResult> result = Fitness.HistoryApi.readDailyTotal(fitnessHelper.fitnessClient, DataType.TYPE_CALORIES_EXPENDED);
-//            DailyTotalResult totalResult = result.await(30, TimeUnit.SECONDS);
-//            if (totalResult.getStatus().isSuccess()) {
-//                DataSet totalSet = totalResult.getTotal();
-//                if (totalSet != null) {
-//                    total_calories = totalSet.isEmpty()
-//                            ? 0
-//                            : totalSet.getDataPoints().get(0).getValue(Field.FIELD_CALORIES).asFloat();
-//                }
-//            } else {
-//                Log.w(TAG, "There was a problem getting the calories.");
-//            }
+
             String response=new NetworkCall().setStepsToMymo(sessionId, userId, imei, serial, apitoken, apitype, padoSteps,caloriesBeanArrayList,distanceBeanArrayList);
 
             Log.d("Google fit data add to mymoserver",response);
@@ -1040,11 +1028,15 @@ public class Dashboard extends Fragment implements SwipeRefreshLayout.OnRefreshL
             Calendar cal = Calendar.getInstance();
             Date now = new Date();
             cal.setTime(now);
+            cal.set(Calendar.HOUR_OF_DAY, 0);
+            cal.set(Calendar.MINUTE, 0);
+            cal.set(Calendar.SECOND, 0);
             long endTime = cal.getTimeInMillis();
             cal.add(Calendar.WEEK_OF_YEAR, -1);
             long startTime = cal.getTimeInMillis();
 
             final java.text.DateFormat dateFormat = DateFormat.getDateInstance();
+            final java.text.DateFormat timeformat = DateFormat.getTimeInstance();
             Log.e("History", "Range Start: " + dateFormat.format(startTime));
             Log.e("History", "Range End: " + dateFormat.format(endTime));
             DataReadRequest readRequest = new DataReadRequest.Builder()
@@ -1064,26 +1056,33 @@ public class Dashboard extends Fragment implements SwipeRefreshLayout.OnRefreshL
                         for (Bucket bucket : dataReadResult.getBuckets()) {
                             List<DataSet> dataSets = bucket.getDataSets();
                             for (DataSet dataSet : dataSets) {
-                                Log.e("dataSet.dataType: ","" + dataSet.getDataType().getName());
+                                Log.e("dataSet.dataType: ", "" + dataSet.getDataType().getName());
+                                if (!dataSet.getDataPoints().isEmpty()) {
+                                    for (DataPoint dp : dataSet.getDataPoints()) {
+                                        Log.e("first date", dateFormat.format(dp.getStartTime(TimeUnit.MILLISECONDS)));
 
-                                for (DataPoint dp : dataSet.getDataPoints()) {
+                                        DistanceBean distanceBean = new DistanceBean();
+                                        String field_value = "";
 
-                                    DistanceBean distanceBean= new DistanceBean();
-                                    String field_value="";
+                                        String msg = "dataPoint: "
+                                                + "type: " + dp.getDataType().getName() + "\n"
+                                                + ", range: [" + dateFormat.format(dp.getStartTime(TimeUnit.MILLISECONDS)) + timeformat.format(dp.getStartTime(TimeUnit.MILLISECONDS)) + "-" + dateFormat.format(dp.getEndTime(TimeUnit.MILLISECONDS)) + timeformat.format(dp.getEndTime(TimeUnit.MILLISECONDS)) + "]\n"
+                                                + ", fields: [";
 
-                                    String msg = "dataPoint: "
-                                            + "type: " + dp.getDataType().getName() +"\n"
-                                            + ", range: [" + dateFormat.format(dp.getStartTime(TimeUnit.MILLISECONDS)) + "-" + dateFormat.format(dp.getEndTime(TimeUnit.MILLISECONDS)) + "]\n"
-                                            + ", fields: [";
-
-                                    for(Field field : dp.getDataType().getFields()) {
-                                        msg += field.getName() + "=" + dp.getValue(field) + " ";
+                                        for (Field field : dp.getDataType().getFields()) {
+                                            msg += field.getName() + "=" + dp.getValue(field) + " ";
+                                        }
+                                        distanceBean.setDate(dateFormat.format(dp.getEndTime(TimeUnit.MILLISECONDS)));
+                                        distanceBean.setDistance(field_value);
+                                        distanceBeanArrayList.add(distanceBean);
+                                        msg += "]";
+                                        Log.e("msggggggggggg ,......", msg);
                                     }
-                                    distanceBean.setDate(dateFormat.format(dp.getEndTime(TimeUnit.MILLISECONDS)));
-                                    distanceBean.setDistance(field_value);
+                                }else {
+                                    DistanceBean distanceBean = new DistanceBean();
+                                    distanceBean.setDistance("0");
                                     distanceBeanArrayList.add(distanceBean);
-                                    msg += "]";
-                                    Log.e("msggggggggggg ,......",msg);
+
                                 }
                             }
                         }
@@ -1098,7 +1097,7 @@ public class Dashboard extends Fragment implements SwipeRefreshLayout.OnRefreshL
 
                                 String msg = "dataPoint: "
                                         + "type: " + dp.getDataType().getName() +"\n"
-                                        + ", range: [" + dateFormat.format(dp.getStartTime(TimeUnit.MILLISECONDS)) + "-" + dateFormat.format(dp.getEndTime(TimeUnit.MILLISECONDS)) + "]\n"
+                                        + ", range: [" + dateFormat.format(dp.getStartTime(TimeUnit.MILLISECONDS)) + timeformat.format(dp.getStartTime(TimeUnit.MILLISECONDS))+"-" + dateFormat.format(dp.getEndTime(TimeUnit.MILLISECONDS)) + timeformat.format(dp.getEndTime(TimeUnit.MILLISECONDS))+"]\n"
                                         + ", fields: [";
 
                                 for(Field field : dp.getDataType().getFields()) {
@@ -1144,13 +1143,19 @@ public class Dashboard extends Fragment implements SwipeRefreshLayout.OnRefreshL
         @Override
         protected ArrayList<CaloriesBean> doInBackground(Long... params) {
             Calendar cal = Calendar.getInstance();
+
             Date now = new Date();
             cal.setTime(now);
+            cal.set(Calendar.HOUR_OF_DAY, 0);
+            cal.set(Calendar.MINUTE, 0);
+            cal.set(Calendar.SECOND, 0);
             long endTime = cal.getTimeInMillis();
             cal.add(Calendar.WEEK_OF_YEAR, -1);
             long startTime = cal.getTimeInMillis();
 
             final java.text.DateFormat dateFormat = DateFormat.getDateInstance();
+            final java.text.DateFormat timeformat = DateFormat.getTimeInstance();
+
             Log.e("History", "Range Start: " + dateFormat.format(startTime));
             Log.e("History", "Range End: " + dateFormat.format(endTime));
             DataReadRequest readRequest = new DataReadRequest.Builder()
@@ -1171,20 +1176,20 @@ public class Dashboard extends Fragment implements SwipeRefreshLayout.OnRefreshL
                             List<DataSet> dataSets = bucket.getDataSets();
                             for (DataSet dataSet : dataSets) {
                                 Log.e("dataSet.dataType: ","" + dataSet.getDataType().getName());
-
+                                  //  if(!dataSet.getDataPoints().isEmpty())
                                 for (DataPoint dp : dataSet.getDataPoints()) {
+                                    Log.e("first date", dateFormat.format(dp.getStartTime(TimeUnit.MILLISECONDS)) );
                                     CaloriesBean stepsBean= new CaloriesBean();
                                     String field_value="";
                                     String msg = "dataPoint: "
                                             + "type: " + dp.getDataType().getName() +"\n"
-                                            + ", range: [" + dateFormat.format(dp.getStartTime(TimeUnit.MILLISECONDS)) + "-" + dateFormat.format(dp.getEndTime(TimeUnit.MILLISECONDS)) + "]\n"
+                                            + ", range: [" + dateFormat.format(dp.getStartTime(TimeUnit.MILLISECONDS)) + timeformat.format(dp.getStartTime(TimeUnit.MILLISECONDS))+"-" + dateFormat.format(dp.getEndTime(TimeUnit.MILLISECONDS)) + timeformat.format(dp.getEndTime(TimeUnit.MILLISECONDS))+"]\n"
                                             + ", fields: [";
-
                                     for(Field field : dp.getDataType().getFields()) {
                                         msg += field.getName() + "=" + dp.getValue(field) + " ";
                                         field_value=""+dp.getValue(field);
                                     }
-                                    stepsBean.setDate(dateFormat.format(dp.getEndTime(TimeUnit.MILLISECONDS)));
+                                    stepsBean.setDate(dateFormat.format(dp.getStartTime(TimeUnit.MILLISECONDS)));
                                     stepsBean.setSteps(field_value);
                                     caloriesBeanArrayList.add(stepsBean);
                                     msg += "]";
@@ -1203,10 +1208,9 @@ public class Dashboard extends Fragment implements SwipeRefreshLayout.OnRefreshL
                                     CaloriesBean stepsBean = new CaloriesBean();
                                     String field_value = "";
                                     String msg = "dataPoint: "
-                                            + "type: " + dp.getDataType().getName() + "\n"
-                                            + ", range: [" + dateFormat.format(dp.getStartTime(TimeUnit.MILLISECONDS)) + "-" + dateFormat.format(dp.getEndTime(TimeUnit.MILLISECONDS)) + "]\n"
+                                            + "type: " + dp.getDataType().getName() +"\n"
+                                            + ", range: [" + dateFormat.format(dp.getStartTime(TimeUnit.MILLISECONDS)) + timeformat.format(dp.getStartTime(TimeUnit.MILLISECONDS))+"-" + dateFormat.format(dp.getEndTime(TimeUnit.MILLISECONDS)) + timeformat.format(dp.getEndTime(TimeUnit.MILLISECONDS))+"]\n"
                                             + ", fields: [";
-
                                     for (Field field : dp.getDataType().getFields()) {
                                         msg += field.getName() + "=" + dp.getValue(field) + " ";
                                         field_value = "" + dp.getValue(field);

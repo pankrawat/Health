@@ -79,6 +79,7 @@ dependencies {
    // compile fileTree(include: ['*.jar'], dir: 'lib')
     compile files('libs/samsung-health-data-v1.3.0.jar')
     compile 'com.loopj.android:android-async-http:1.4.9'
+    compile 'com.xw.repo:bubbleseekbar:3.6'
     compile 'com.pkmmte.view:circularimageview:1.1'
     compile 'com.pubnub:pubnub-android:3.7.10'
     compile 'com.android.volley:volley:1.0.0'

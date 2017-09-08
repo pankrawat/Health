@@ -43,6 +43,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.Exchanger;
+import java.util.logging.Handler;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -64,7 +65,7 @@ public class FitbitTupeloAsync extends AsyncTask<String, Void, String> {
     ArrayList<StepsBean> stepsArray;
     ArrayList<FloorBean> fitbitfloorArray=new ArrayList<>();
     ArrayList<DistanceBean> fitbitDistanceArray;
-
+    String apitoken;
     public FitbitTupeloAsync(Context context) {
         this.context = context;
     }
@@ -96,6 +97,10 @@ public class FitbitTupeloAsync extends AsyncTask<String, Void, String> {
             } else if (params[0].equalsIgnoreCase(DbAdapter.TABLE_NAME_MYMO)) {
                 syncDashboard();
             } else if (params[0].equalsIgnoreCase(DbAdapter.TABLE_NAME_GARMIN)) {
+                syncDashboard();
+            } else if (params[0].equalsIgnoreCase(DbAdapter.TABLE_NAME_PEDOMETER)) {
+                syncDashboard();
+            }else if (params[0].equalsIgnoreCase(DbAdapter.TABLE_NAME_SHEALTH)) {
                 syncDashboard();
             }
         } catch (Exception e) {
@@ -217,15 +222,16 @@ public class FitbitTupeloAsync extends AsyncTask<String, Void, String> {
     private void getfitbitfloordata(final String fitbit_userid, final String fitbit_token, final String token_type){
         DateFormat dateFormat= new SimpleDateFormat("yyyy-MM-dd");
         Date date= new Date();
+         //
+
         final String imei = new Helper().getImei(context);
 //
         final String serial = "666974626974", apitype = "1001";
 
         cursor = dbAdapter.fetchQuery(DbAdapter.TABLE_NAME_FITBIT);
 
-        final String apitoken="";
         if (cursor.getCount() > 0) {
-            apitoken = cursor.getString(3);
+           apitoken = cursor.getString(3);
         }
         AsyncHttpClient client= new AsyncHttpClient();
         client.addHeader("Authorization",token_type+" "+fitbit_token);
@@ -258,17 +264,25 @@ public class FitbitTupeloAsync extends AsyncTask<String, Void, String> {
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 Log.e("response......",new String(responseBody));
+
                 String string= new String(responseBody);
                 try {
                     JSONObject jsonObject= new JSONObject(string);
                     if(jsonObject.has("errors")){
-                        String respons = new NetworkCall().setStepsToMymo(sessionId, userId, imei, serial, apitoken, apitype, stepsArray,fitbitCaloriesArray,fitbitDistanceArray);
+                        Thread thread = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
 
+                                String respons = new NetworkCall().setStepsToMymo(sessionId, userId, imei, serial, apitoken, apitype, stepsArray,fitbitCaloriesArray,fitbitDistanceArray);
+                                  Log.d("Fitbitsave to mymo server",respons);
+                            }
+                        });
+                        thread.start();
                     }
-                }catch (Exception error){
-                    error.printStackTrace();
+                }catch (Exception e){
+                    e.printStackTrace();
                 }
 
 
