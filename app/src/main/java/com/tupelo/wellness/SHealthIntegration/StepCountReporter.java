@@ -53,8 +53,8 @@ public class StepCountReporter {
     public Context context;
     String sessionId = "", userId = "";
     ArrayList<StepsBean> stepCounts, stepCountFinal;
-    ArrayList<CaloriesBean> caloriesBeanArrayList;
-    ArrayList<DistanceBean> distanceBeanArrayList;
+    ArrayList<CaloriesBean> caloriesBeanArrayList,finalcaloriesBeanArrayList;
+    ArrayList<DistanceBean> distanceBeanArrayList,finaldistanceBeanArrayList;
     ArrayList<FloorBean> floorBeanArrayList;
     Boolean isfloorcount=true;
     public StepCountReporter(HealthDataStore store) {
@@ -126,6 +126,8 @@ public class StepCountReporter {
                         distanceBean.setDistance(String.valueOf(c.getInt(c.getColumnIndex("distance"))));
                         caloriesBean.setSteps(String.valueOf(c.getInt(c.getColumnIndex("calorie"))));
                         Log.e("distance.......",""+c.getInt(c.getColumnIndex("distance")));
+                        Log.e("Count.......",""+c.getInt(c.getColumnIndex("count")));
+
                         stepCount.setDate(dateFormat.format(c.getLong(c.getColumnIndex("day_time"))));
                         stepCounts.add(stepCount);
                         distanceBeanArrayList.add(distanceBean);
@@ -136,18 +138,74 @@ public class StepCountReporter {
             } finally {
                 if (c != null) {
                     c.close();
+                    Boolean issavebean=false;
                     stepCountFinal = new ArrayList<>();
+                    finalcaloriesBeanArrayList=new ArrayList<>();
+                    finaldistanceBeanArrayList=new ArrayList<>();
                     Log.e(Constants.SHEALTH_TAG, "total Count " + stepCounts.size());
                     while (cal.get(Calendar.DAY_OF_YEAR) >= FirstDayOfWeek.get(Calendar.DAY_OF_YEAR)) {
                         for (StepsBean bean : stepCounts) {
                             if (bean.getDate().equalsIgnoreCase(dateFormat.format(cal.getTime()))) {
-                                Log.e(Constants.SHEALTH_TAG, "Added " + bean.getDate() + " Count: " + bean.getSteps());
                                 stepCountFinal.add(bean);
+                                Log.e(Constants.SHEALTH_TAG, "Added if " + bean.getDate() + " Count: " + bean.getSteps());
+                                issavebean=true;
                             }
+//                            else{
+//                                bean.setSteps("0");
+//                                stepCountFinal.add(bean);
+//                                Log.e(Constants.SHEALTH_TAG, "Added esle" + bean.getDate() + " Count: " + bean.getSteps());
+//
+//                            }
+
+//                        }
+//                        for (CaloriesBean bean : caloriesBeanArrayList) {
+//                            if (bean.getDate().equalsIgnoreCase(dateFormat.format(cal.getTime()))) {
+//                                Log.e(Constants.SHEALTH_TAG, "Added 2" + bean.getDate() + " Count: " + bean.getSteps());
+//                                finalcaloriesBeanArrayList.add(bean);
+//                            }else{
+//                                bean.setSteps("0");
+//                                finalcaloriesBeanArrayList.add(bean);
+//
+//                            }
+//                        }
+//                        for (DistanceBean bean : distanceBeanArrayList) {
+//                            if (bean.getDate().equalsIgnoreCase(dateFormat.format(cal.getTime()))) {
+//                                Log.e(Constants.SHEALTH_TAG, "Added 3" + bean.getDate() + " Count: " + bean.getDistance());
+//                                finaldistanceBeanArrayList.add(bean);
+//                            }else{
+//                                bean.setDistance("0");
+//                                finaldistanceBeanArrayList.add(bean);
+//
+//                            }
                         }
+
+
                         cal.add(Calendar.DAY_OF_YEAR, -1);
                     }
-                }
+                    Calendar cal1 = Calendar.getInstance();
+
+
+                    while (cal1.get(Calendar.DAY_OF_YEAR) >= FirstDayOfWeek.get(Calendar.DAY_OF_YEAR)) {
+                            for(int i=0;i<7;i++) {
+                                if (stepCountFinal.get(i).getDate().equalsIgnoreCase(dateFormat.format(cal1.get(Calendar.DAY_OF_YEAR))))
+                                {
+
+                                }else {
+                                    StepsBean bean=new StepsBean();
+                                    bean.setDate(dateFormat.format(cal1.getTime()));
+                                    stepCountFinal.add(bean);
+
+                                }
+
+                                }
+                                cal1.set(Calendar.HOUR_OF_DAY,-1);
+
+                            }
+                            for (int i=0;i<stepCountFinal.size();i++){
+                                Log.e("Arrrayyyyy",stepCountFinal.get(i).getDate());
+                            }
+                        }
+
             }
             new SHealthAsync().execute();
         }
@@ -176,10 +234,14 @@ public class StepCountReporter {
             String imei = new Helper().getImei(context);
             String serial = "534845414c5448", apitoken = "", apitype = "1006";
                 if(isfloorcount) {
-                   String result= new NetworkCall().setStepsToMymo(sessionId, userId, imei, serial, apitoken, apitype, stepCounts, caloriesBeanArrayList, distanceBeanArrayList,floorBeanArrayList);
+                 //  String result= new NetworkCall().setStepsToMymo(sessionId, userId, imei, serial, apitoken, apitype, stepCounts, finalcaloriesBeanArrayList, finaldistanceBeanArrayList,floorBeanArrayList);
+                    String result= new NetworkCall().setStepsToMymo(sessionId, userId, imei, serial, apitoken, apitype, stepCounts, caloriesBeanArrayList, distanceBeanArrayList);
+
                     Log.e(StepCountReporter.class.getName(),"1"+result);
                 }else {
                     String result= new NetworkCall().setStepsToMymo(sessionId, userId, imei, serial, apitoken, apitype, stepCounts, caloriesBeanArrayList, distanceBeanArrayList);
+
+//                    String result= new NetworkCall().setStepsToMymo(sessionId, userId, imei, serial, apitoken, apitype, stepCounts, finalcaloriesBeanArrayList, finaldistanceBeanArrayList);
                 Log.e(StepCountReporter.class.getName(),"2"+result);
                 }
                     return null;

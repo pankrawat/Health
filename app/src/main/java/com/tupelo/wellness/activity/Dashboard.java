@@ -1025,15 +1025,25 @@ public class Dashboard extends Fragment implements SwipeRefreshLayout.OnRefreshL
 
            // caloriesBeanArrayList = fitnessHelper.getdata();
 
-            Calendar cal = Calendar.getInstance();
-            Date now = new Date();
-            cal.setTime(now);
-            cal.set(Calendar.HOUR_OF_DAY, 0);
-            cal.set(Calendar.MINUTE, 0);
-            cal.set(Calendar.SECOND, 0);
-            long endTime = cal.getTimeInMillis();
-            cal.add(Calendar.WEEK_OF_YEAR, -1);
-            long startTime = cal.getTimeInMillis();
+//            Calendar cal = Calendar.getInstance();
+//            Date now = new Date();
+//            cal.setTime(now);
+//            cal.set(Calendar.HOUR_OF_DAY, 0);
+//            cal.set(Calendar.MINUTE, 0);
+//            cal.set(Calendar.SECOND, 0);
+//            long endTime = cal.getTimeInMillis();
+//            cal.add(Calendar.WEEK_OF_YEAR, -1);
+//            long startTime = cal.getTimeInMillis();
+
+
+            final long startTime, endTime;
+            Calendar calendar = Calendar.getInstance();
+            endTime = calendar.getTimeInMillis();
+            calendar.add(Calendar.DAY_OF_YEAR, -6);
+            calendar.add(Calendar.HOUR_OF_DAY, -(calendar.get(Calendar.HOUR_OF_DAY)));
+            calendar.add(Calendar.MINUTE, -(calendar.get(Calendar.MINUTE)));
+            calendar.add(Calendar.SECOND, -(calendar.get(Calendar.SECOND)));
+            startTime = calendar.getTimeInMillis();
 
             final java.text.DateFormat dateFormat = DateFormat.getDateInstance();
             final java.text.DateFormat timeformat = DateFormat.getTimeInstance();
@@ -1142,16 +1152,28 @@ public class Dashboard extends Fragment implements SwipeRefreshLayout.OnRefreshL
 
         @Override
         protected ArrayList<CaloriesBean> doInBackground(Long... params) {
-            Calendar cal = Calendar.getInstance();
+//            Calendar cal = Calendar.getInstance();
+//
+//            Date now = new Date();
+//            cal.setTime(now);
+//            cal.set(Calendar.HOUR_OF_DAY, 0);
+//            cal.set(Calendar.MINUTE, 0);
+//            cal.set(Calendar.SECOND, 0);
+//            long endTime = cal.getTimeInMillis();
+//            cal.add(Calendar.WEEK_OF_YEAR, -1);
+//            long startTime = cal.getTimeInMillis();
 
-            Date now = new Date();
-            cal.setTime(now);
-            cal.set(Calendar.HOUR_OF_DAY, 0);
-            cal.set(Calendar.MINUTE, 0);
-            cal.set(Calendar.SECOND, 0);
-            long endTime = cal.getTimeInMillis();
-            cal.add(Calendar.WEEK_OF_YEAR, -1);
-            long startTime = cal.getTimeInMillis();
+
+            final long startTime, endTime;
+            Calendar calendar = Calendar.getInstance();
+            endTime = calendar.getTimeInMillis();
+            calendar.add(Calendar.DAY_OF_YEAR, -6);
+            calendar.add(Calendar.HOUR_OF_DAY, -(calendar.get(Calendar.HOUR_OF_DAY)));
+            calendar.add(Calendar.MINUTE, -(calendar.get(Calendar.MINUTE)));
+            calendar.add(Calendar.SECOND, -(calendar.get(Calendar.SECOND)));
+            startTime = calendar.getTimeInMillis();
+
+
 
             final java.text.DateFormat dateFormat = DateFormat.getDateInstance();
             final java.text.DateFormat timeformat = DateFormat.getTimeInstance();
